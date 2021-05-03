@@ -1,7 +1,16 @@
 import telebot
 from telebot import types
+import requests
+from bs4 import BeautifulSoup
 
 bot = telebot.TeleBot("1735384641:AAE_LoZ6D4AMDUe2_mxuWG7ajou4CnfKbY4", parse_mode=None)
+DOLLAR_RUB = 'https://www.google.com/search?client=opera-gx&q=rehc+ljkkfhf&sourceid=opera&ie=UTF-8&oe=UTF-8'
+headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36 OPR/73.0.3856.438'}
+
+full_page = requests.get(DOLLAR_RUB, headers=headers)
+soup = BeautifulSoup(full_page.content, 'html.parser')
+convert = soup.findAll("span", {"class": "Dflfde", "class": "SwHCTb", "data-precision": 2})
+value = "Один доллар США равен " + convert[0].text + " рублей"
 
 @bot.message_handler(commands=['start','help'])
 def send_welcome(message):
@@ -20,5 +29,5 @@ def answer_key(message):
         if message.text == "Прогноз погоды":
             pass
         if message.text == "Курс валюты":
-            pass
+            bot.send_message(message.chat.id, value.format(message.from_user.first_name))
 bot.polling()
